@@ -54,6 +54,7 @@ try:
 except ImportError:
     # import location prior to Django 1.8
     from django.db.backends import BaseDatabaseOperations
+from django.utils.dateparse import parse_date, parse_time, parse_datetime
 
 
 from django_pyodbc.compat import smart_text, string_types, timezone
@@ -79,13 +80,8 @@ class DatabaseOperations(BaseDatabaseOperations):
     @property
     def is_db2(self):
         if self._is_db2 is None:
-            cur = self.connection.cursor()
-            try:
-                cur.execute("SELECT * FROM SYSIBM.COLUMNS FETCH FIRST 1 ROWS ONLY")
-                self._is_db2 = True
-            except Exception:
-                self._is_db2 = False
-
+            options = self.connection.settings_dict.get('OPTIONS', {})
+            self._is_db2 = options.get('is_db2', False)
         return self._is_db2
 
     @property
@@ -432,7 +428,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         """
         return x
 
-    def value_to_db_datetime(self, value):
+    def adapt_datetimefield_value(self, value):
         """
         Transform a datetime value to an object compatible with what is expected
         by the backend driver for datetime columns.
@@ -447,7 +443,7 @@ class DatabaseOperations(BaseDatabaseOperations):
             value = value.replace(microsecond=0)
         return value
 
-    def value_to_db_time(self, value):
+    def adapt_timefield_value(self, value):
         """
         Transform a time value to an object compatible with what is expected
         by the backend driver for time columns.
@@ -471,7 +467,7 @@ class DatabaseOperations(BaseDatabaseOperations):
         last = '%s-12-31 23:59:59'
         return [first % value, last % value]
 
-    def value_to_db_decimal(self, value, max_digits, decimal_places):
+    def adapt_decimalfield_value(self, value, max_digits, decimal_places):
         """
         Transform a decimal.Decimal value to an object compatible with what is
         expected by the backend driver for decimal (numeric) columns.
@@ -498,11 +494,20 @@ class DatabaseOperations(BaseDatabaseOperations):
         if value is None:
             return None
         if field and field.get_internal_type() == 'DateTimeField':
+            if isinstance(value, string_types) and value:
+                value = parse_datetime(value)
             return value
-        elif field and field.get_internal_type() == 'DateField' and isinstance(value, datetime.datetime):
-            value = value.date() # extract date
-        elif field and field.get_internal_type() == 'TimeField' or (isinstance(value, datetime.datetime) and value.year == 1900 and value.month == value.day == 1):
-            value = value.time() # extract time
+        elif field and field.get_internal_type() == 'DateField':
+            if isinstance(value, datetime.datetime):
+                value = value.date() # extract date
+            elif isinstance(value, string_types):
+                value = parse_date(value)
+        elif field and field.get_internal_type() == 'TimeField':
+            if (isinstance(value, datetime.datetime) and value.year == 1900 and value.month == value.day == 1):
+                value = value.time() # extract time
+            elif isinstance(value, string_types):
+                # If the value is a string, parse it using parse_time.
+                value = parse_time(value)
         # Some cases (for example when select_related() is used) aren't
         # caught by the DateField case above and date fields arrive from
         # the DB as datetime instances.

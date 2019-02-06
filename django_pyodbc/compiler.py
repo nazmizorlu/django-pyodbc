@@ -1,4 +1,4 @@
-# Copyright 2013 Lionheart Software LLC
+# Copyright 2013-2017 Lionheart Software LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,11 +41,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import re
-from django.db.models.sql import compiler, where
-import django
 import types
-from datetime import datetime, date
+from datetime import date, datetime
+
+import django
 from django import VERSION as DjangoVersion
+from django.db.models.sql import compiler, where
 
 from django_pyodbc.compat import zip_longest
 
@@ -203,7 +204,9 @@ class SQLCompiler(compiler.SQLCompiler):
             elif aggregate.sql_function == 'VAR_POP':
                 select[alias].sql_function = 'VARP'
 
-    def as_sql(self, with_limits=True, with_col_aliases=False, **kwargs):
+    def as_sql(self, with_limits=True, with_col_aliases=False, qn=None, **kwargs):
+        self.pre_sql_setup()
+
         # Django #12192 - Don't execute any DB query when QS slicing results in limit 0
         if with_limits and self.query.low_mark == self.query.high_mark:
             return '', ()
@@ -321,7 +324,7 @@ class SQLCompiler(compiler.SQLCompiler):
                     right_sql_quote=self.connection.ops.right_sql_quote,
                 )
         else:
-            sql = "SELECT {row_num_col}, {outer} FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY {order}) as {row_num_col}, {inner}) as QQQ where {where}".format(
+            sql = "SELECT {outer}, {row_num_col} FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY {order}) as {row_num_col}, {inner}) as QQQ where {where}".format(
                 outer=outer_fields,
                 order=order,
                 inner=inner_select,
@@ -675,10 +678,10 @@ class SQLUpdateCompiler(compiler.SQLUpdateCompiler, SQLCompiler):
 class SQLAggregateCompiler(compiler.SQLAggregateCompiler, SQLCompiler):
     def as_sql(self, qn=None):
         self._fix_aggregates()
-        return super(SQLAggregateCompiler, self).as_sql(qn=qn)
+        return super(SQLAggregateCompiler, self).as_sql()
 
 # django's compiler.SQLDateCompiler was removed in 1.8
-if DjangoVersion[0] >= 1 and DjangoVersion[1] >= 8:
+if DjangoVersion[0] > 1 or DjangoVersion[0] == 1 and DjangoVersion[1] >= 8:
 
     import warnings
 

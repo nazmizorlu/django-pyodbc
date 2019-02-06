@@ -4,7 +4,7 @@ django-pyodbc
 |version|_ 
 
 .. |version| image:: http://img.shields.io/pypi/v/django-pyodbc.svg?style=flat
-.. _version: https://pypi.python.org/pypi/django-pyodbc
+.. _version: https://pypi.org/project/django-pyodbc
 
 django-pyodbc is a `Django <http://djangoproject.com>`_ SQL Server DB backend powered by the `pyodbc <https://github.com/mkleehammer/pyodbc>`_ library. pyodbc is a mature, viable way to access SQL Server from Python in multiple platforms and is actively maintained. It's also used by SQLAlchemy for SQL Server connections.
 
@@ -13,6 +13,7 @@ This is a fork of the original `django-pyodbc <https://code.google.com/p/django-
 Features
 --------
 
+* [x] Alpha support for Django 2.0 via ``pip install django-pyodbc>=2.0.0a1``
 * [x] Support for Django 1.4-1.10.
 * [x] Support for SQL Server 2000, 2005, 2008, and 2012 (please let us know if you have success running this backend with another version of SQL Server)
 * [x] Support for Openedge 11.6
@@ -27,7 +28,7 @@ Features
 
 TODO
 --------
-* [ ] Python 3 support. See [#47](https://github.com/lionheart/django-pyodbc/issues/47) for details.
+* [ ] Python 3 support. See `#47 <https://github.com/lionheart/django-pyodbc/issues/47>`_ for details.
 
 Installation
 ------------
@@ -190,12 +191,13 @@ Credits
 * `Alex Vidal <https://github.com/avidal>`_
 * `Dan Loewenherz <http://dlo.me>`_
 * `Filip Wasilewski <http://code.djangoproject.com/ticket/5246 "For his pioneering work, proving this was possible and profusely documenting the code with links to relevant vendor technical articles.">`_
+* `mamcx <http://code.djangoproject.com/ticket/5062>`_ "For the first implementation using pymssql."
 * `Michael Manfre <https://github.com/manfre>`_
 * `Michiya Takahashi <https://github.com/michiya>`_
 * `Paul Tax <https://github.com/tax>`_
 * `Ramiro Morales <http://djangopeople.net/ramiro/>`_
+* `Ross Rogers <https://github.com/RossRogers>`_
 * `Wei guangjing <http://djangopeople.net/vcc/>`_
-* `mamcx <http://code.djangoproject.com/ticket/5062>`_ "For the first implementation using pymssql."
 
 From the original project README.
 
