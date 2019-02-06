@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2013-2017 Lionheart Software LLC
 #
@@ -16,7 +17,6 @@
 
 import re
 import os
-from django_pyodbc import metadata
 
 try:
     from setuptools import setup
@@ -41,12 +41,15 @@ exec(compile(open(metadata_file).read(), metadata_file, 'exec'), metadata)
 
 # http://pypi.python.org/pypi?:action=list_classifiers
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
-    "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
+    "Operating System :: OS Independent",
+    "Operating System :: Unix",
     "Programming Language :: Python :: 2.7",
     "Topic :: Software Development :: Libraries",
 ]
